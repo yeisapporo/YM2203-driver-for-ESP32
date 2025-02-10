@@ -1,3 +1,31 @@
+/*
+
+ YM2203C driver for ESP22
+
+Copyright (c) 2025 Kazuteru Yamada(yeisapporo).  All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:
+
+- Redistributions of source code must retain the above copyright notice,
+  this list of conditions and the following disclaimer.
+- Redistributions in binary form must reproduce the above copyright notice,
+  this list of conditions and the following disclaimer in the documentation
+  and/or other materials provided with the distribution.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+POSSIBILITY OF SUCH DAMAGE.
+ */
+
 #include <SPI.h>
 #include <SD.h>
 #include <Arduino.h>
@@ -8,11 +36,6 @@
 #define GPIO_0TO31SET_REG   *((volatile unsigned long *)GPIO_OUT_W1TS_REG)
 #define GPIO_0TO31CLR_REG   *((volatile unsigned long *)GPIO_OUT_W1TC_REG)
 #define GPIO_0TO31RD_REG    *((volatile unsigned long *)GPIO_IN_REG)
-#if 0
-        GPIO_0TO31SET_REG = 1 << VS1003B_XDCS;
-        GPIO_0TO31CLR_REG = 1 << VS1003B_XCS;
-        GPIO_0TO32RD_REG & (1 << VS1003B_DREQ)
-#endif
 
 hw_timer_t *htimer = NULL;
 portMUX_TYPE timerMux = portMUX_INITIALIZER_UNLOCKED;
@@ -82,6 +105,7 @@ void IRAM_ATTR samplenumcounter() {
   portEXIT_CRITICAL_ISR(&timerMux);
 }
 
+// not used.
 void IRAM_ATTR dacclock() {
   static int clock = 1;
   digitalWrite(12, clock);
@@ -162,7 +186,7 @@ void loop()
 	};
 	// test vgm identifier.
 	if (vgm_header.vgm_ident[0] != 0x56 || vgm_header.vgm_ident[1] != 0x67 ||
- 		  vgm_header.vgm_ident[2] != 0x6d || vgm_header.vgm_ident[3] != 0x20) {
+      vgm_header.vgm_ident[2] != 0x6d || vgm_header.vgm_ident[3] != 0x20) {
 		Serial.printf("unknown format. quit.\r\n");
 		exit(-1);
 	}
@@ -193,7 +217,7 @@ void loop()
 			aa = bfgetc();
 			dd = bfgetc();
 			writeYM2203(0, aa);
-		  writeYM2203(1, dd);
+      writeYM2203(1, dd);
       data_cnt++;
 			break;
 		case 0x61:
